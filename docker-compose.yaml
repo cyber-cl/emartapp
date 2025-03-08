@@ -1,6 +1,8 @@
+# EMart Microservices Docker Compose Configuration
 version: "3.8"
 
 services:
+  # Angular frontend application
   client:
     build:
       context: ./client
@@ -10,7 +12,13 @@ services:
     depends_on:
       - api
       - webapi
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4200"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Node.js API service
   api:
     build:
       context: ./nodeapi
@@ -21,7 +29,13 @@ services:
     depends_on:
       - nginx
       - emongo
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Java Spring Boot API service
   webapi:
     build:
       context: ./javaapi
@@ -31,7 +45,13 @@ services:
     container_name: webapi
     depends_on:
       - emartdb
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
+  # Nginx web server and reverse proxy
   nginx:
     restart: always
     image: nginx:latest
@@ -41,6 +61,7 @@ services:
     ports:
       - "80:80"
 
+  # MongoDB database for Node.js API
   emongo:
     image: mongo:4
     container_name: emongo
@@ -48,7 +69,10 @@ services:
       - MONGO_INITDB_DATABASE=epoc
     ports:
       - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
 
+  # MySQL database for Java API
   emartdb:
     image: mysql:8.0.33
     container_name: emartdb
@@ -57,3 +81,10 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=emartdbpass
       - MYSQL_DATABASE=books
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+# Define named volumes for data persistence
+volumes:
+  mongo_data:
+  mysql_data:
