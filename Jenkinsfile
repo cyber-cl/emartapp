@@ -1,3 +1,5 @@
+// Jenkins pipeline for EMart microservices application
+// Handles building, deploying, and managing all microservices
 pipeline {
     agent any
 	
