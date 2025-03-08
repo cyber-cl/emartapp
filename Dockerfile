@@ -1,3 +1,4 @@
+# Multi-stage build for optimized container size
 FROM node:14 AS ui-build
 WORKDIR /usr/src/app
 COPY client/ ./client/
@@ -16,4 +17,3 @@ RUN ls
 EXPOSE 4200
 EXPOSE 5000
 CMD ["/bin/sh", "-c", "cd /usr/src/app/ && npm start"]
-  
